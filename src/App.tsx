@@ -1,34 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
-import type { User } from './test';
-
-const MOCK_USERS: User[] = [
-  {
-    id: 1,
-    firstName: 'ibrahim',
-    lastName: 'seyid',
-    email: 'ibrahim@example.com',
-    image: 'https://dummyjson.com/icon/emilys/128',
-  },
-  {
-    id: 2,
-    firstName: 'ibrahim',
-    lastName: 'seyid',
-    email: 'ibrahim@example.com',
-    image: 'https://dummyjson.com/icon/emilys/128',
-  },
-  {
-    id: 3,
-    firstName: 'ibrahim',
-    lastName: 'seyid',
-    email: 'ibrahim@example.com',
-    image: 'https://dummyjson.com/icon/emilys/128',
-  }
-];
+import type { User } from './types/type';
 
 function App() {
 
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [loadind, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredUsers = users.filter((user) => {
@@ -36,6 +15,22 @@ function App() {
     const query = searchTerm.toLowerCase();
     return fullName.includes(query) || user.email.toLowerCase().includes(query);
   });
+
+  useEffect(() => {
+    fetch('https://dummyjson.com/users')
+    .then((res) => {
+      if (!res.ok) throw new Error('Failed to fetch data');
+      return res.json();
+    })
+    .then((data) => {
+      setUsers(data.users);
+      setLoading(false);
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false)
+    })
+  })
 
 
   return (
